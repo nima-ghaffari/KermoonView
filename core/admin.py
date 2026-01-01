@@ -80,3 +80,11 @@ class CommentAdmin(admin.ModelAdmin):
     list_editable = ('is_approved',)
 #=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
 
+#=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
+# 7. TourLeader (TL) comment
+@admin.register(LeaderReview)
+class LeaderReviewAdmin(admin.ModelAdmin):
+    list_display = ('leader', 'user', 'rating', 'is_approved', 'created_at')
+    list_filter = ('is_approved', 'rating')
+    list_editable = ('is_approved',)
+#=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
