@@ -47,5 +47,17 @@ class HotelAdmin(admin.ModelAdmin):
 
 #=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
 # 4. Tour management 
+@admin.register(Tour)
+class TourAdmin(admin.ModelAdmin):
+    list_display = ('title', 'leader', 'price', 'start_date', 'is_active')
+    list_filter = ('is_active', 'category', 'start_date')    
+    search_fields = ('title', 'leader__username', 'location')    
+    list_editable = ('is_active',)    
+    actions = ['approve_tours']
 
+    @admin.action(description='تایید و فعال‌سازی تورهای انتخاب شده')
+    def approve_tours(self, request, queryset):
+        queryset.update(is_active=True)
 #=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
+
+
