@@ -10,7 +10,7 @@ from .models import (
     Tour, Reservation, TourLeaderProfile, 
     Post, PostComment, Comment, LeaderReview, User)
 
-from .forms import TourForm
+from .forms import TourForm,ProfileUpdateForm
 
 #=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
 # Public sectors --> home tour weblog
@@ -180,5 +180,109 @@ def upgrade_to_leader(request):
     return render(request, 'upgrade_to_leader.html')
 #=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
 
+#=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
+# Dashboard and sign in page 
+@login_required(login_url='/login/')
+def dashboard(request):
+    user = request.user
+    is_pending_leader = False
+    
+    if user.role == 'user':
+        try:
+            if hasattr(user, 'leader_profile') and not user.leader_profile.is_verified:
+                is_pending_leader = True
+        except TourLeaderProfile.DoesNotExist:
+            pass
+
+    if request.method == 'POST':
+        form = ProfileUpdateForm(request.POST, request.FILES, instance=user)
+        if form.is_valid(): 
+            form.save()
+            messages.success(request, "پروفایل بروزرسانی شد.")
+            return redirect('dashboard')
+    else: 
+        form = ProfileUpdateForm(instance=user)
+    
+    context = {
+        'profile_form': form, 
+        'reservations': Reservation.objects.filter(user=user).order_by('-created_at'),
+        'is_pending_leader': is_pending_leader
+    }
+    
+    if user.role == 'leader': 
+        context['leader_tours'] = Tour.objects.filter(leader=user)
+        
+    return render(request, 'dashboard.html', context)
+
+def login_view(request):
+    active_tab = 'login'
+    
+    if request.method == 'POST':
+        action = request.POST.get('action')
+        
+        if action == 'login':
+            active_tab = 'login'
+            u = request.POST.get('username')
+            p = request.POST.get('password')
+            user = authenticate(request, username=u, password=p)
+            
+            if user:
+                if user.role == 'leader':
+                    try:
+                        if hasattr(user, 'leader_profile') and not user.leader_profile.is_verified:
+                            return render(request, 'login.html', {
+                                'error_login': 'حساب لیدر شما هنوز توسط مدیریت تایید نشده است. لطفا منتظر بمانید.',
+                                'active_tab': 'login'
+                            })
+                    except TourLeaderProfile.DoesNotExist:
+                        pass
+                
+                login(request, user)
+                messages.success(request, f"خوش آمدید {user.first_name}")
+                return redirect('dashboard')
+            else:
+                return render(request, 'login.html', {
+                    'error_login': 'نام کاربری یا رمز عبور اشتباه است', 
+                    'active_tab': 'login'
+                })
+
+        elif action == 'register':
+            active_tab = 'register'
+            u = request.POST.get('username')
+            p = request.POST.get('password')
+            first_name = request.POST.get('first_name')
+            phone = request.POST.get('phone')
+            
+            if User.objects.filter(username=u).exists():
+                return render(request, 'login.html', {
+                    'error_reg': 'این نام کاربری قبلاً انتخاب شده است.', 
+                    'active_tab': 'register'
+                })
+
+            try:
+                new_user = User.objects.create_user(
+                    username=u, 
+                    password=p, 
+                    first_name=first_name, 
+                    phone_number=phone, 
+                    role='user'
+                )
+                
+                login(request, new_user)
+                messages.success(request, "ثبت نام با موفقیت انجام شد.")
+                return redirect('dashboard')
+                
+            except Exception as e:
+                return render(request, 'login.html', {
+                    'error_reg': f'خطا: {str(e)}', 
+                    'active_tab': 'register'
+                })
+
+    return render(request, 'login.html', {'active_tab': active_tab})
+
+def logout_view(request):
+    logout(request)
+    return redirect('index')
+#=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
 
 
