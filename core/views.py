@@ -75,3 +75,21 @@ def guide_detail(request, guide_id):
             
     return render(request, 'guide-details.html', {'guide': guide, 'tours': tours, 'reviews': reviews})
 #=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
+
+#=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
+#Post details 
+def post_detail(request, post_id):
+    post = get_object_or_404(Post, pk=post_id)
+    comments = post.comments.filter(is_approved=True)
+    
+    if request.method == 'POST' and request.user.is_authenticated:
+        text = request.POST.get('comment_text')
+        if text: 
+            PostComment.objects.create(post=post, user=request.user, text=text, is_approved=True)
+            return redirect('post_detail', post_id=post.id)
+            
+    return render(request, 'post_detail.html', {'post': post, 'comments': comments})
+#=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
+
+#=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
+#
