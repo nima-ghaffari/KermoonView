@@ -1,0 +1,149 @@
+
+.auth-wrapper {
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: #f7fafc;
+    padding: 20px;
+}
+
+.auth-card {
+    background: white;
+    width: 100%;
+    max-width: 400px;
+    padding: 30px;
+    border-radius: 20px;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.05);
+}
+
+.auth-tabs {
+    display: flex;
+    background: #edf2f7;
+    padding: 5px;
+    border-radius: 12px;
+    margin-bottom: 25px;
+}
+
+.auth-tab {
+    flex: 1;
+    padding: 10px;
+    border: none;
+    background: transparent;
+    border-radius: 8px;
+    cursor: pointer;
+    font-family: inherit;
+    font-weight: 600;
+    color: #718096;
+    transition: 0.3s;
+}
+
+.auth-tab.active {
+    background: white;
+    color: #1f27c5;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+}
+
+.auth-content {
+    display: none;
+    animation: fadeIn 0.3s;
+}
+
+.auth-content.active {
+    display: block;
+}
+
+.form-group {
+    margin-bottom: 15px;
+}
+
+.form-group label {
+    display: block;
+    margin-bottom: 5px;
+    font-size: 0.9rem;
+    color: #4a5568;
+}
+
+.form-group input {
+    width: 100%;
+    padding: 10px;
+    border: 1px solid #cbd5e0;
+    border-radius: 8px;
+    font-family: inherit;
+    outline: none;
+}
+
+.form-group input:focus {
+    border-color: #1f27c5;
+}
+
+.submit-btn {
+    width: 100%;
+    padding: 12px;
+    border: none;
+    border-radius: 10px;
+    background: #1f27c5;
+    color: white;
+    font-weight: bold;
+    cursor: pointer;
+    font-family: inherit;
+    font-size: 1rem;
+    transition: 0.3s;
+}
+
+.submit-btn:hover {
+    opacity: 0.9;
+    transform: translateY(-2px);
+}
+
+.test-guide {
+    margin-top: 20px;
+    padding: 10px;
+    background: #ebf8ff;
+    border-radius: 8px;
+    font-size: 0.8rem;
+    color: #2b6cb0;
+    line-height: 1.6;
+}
+
+.role-selector {
+    margin-bottom: 20px;
+    text-align: center;
+}
+
+.role-buttons {
+    display: flex;
+    gap: 10px;
+}
+
+.role-btn {
+    flex: 1;
+    padding: 10px;
+    border: 2px solid #e2e8f0;
+    background: white;
+    border-radius: 10px;
+    cursor: pointer;
+    font-family: inherit;
+    color: #718096;
+    transition: 0.3s;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+}
+
+.role-btn i {
+    font-size: 1.1rem;
+}
+
+.role-btn.active {
+    border-color: #48bb78;
+    background: #f0fff4;
+    color: #2f855a;
+    font-weight: bold;
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(5px); }
+    to { opacity: 1; transform: translateY(0); }
+}
