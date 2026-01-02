@@ -1,0 +1,79 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block extra_css %}
+<style>
+    .upgrade-box {
+        max-width: 600px;
+        margin: 120px auto 60px;
+        background: white;
+        padding: 40px;
+        border-radius: 20px;
+        box-shadow: 0 10px 40px rgba(0,0,0,0.05);
+    }
+    .soft-input {
+        width: 100%;
+        padding: 12px;
+        border: 1px solid #e2e8f0;
+        border-radius: 10px;
+        margin-bottom: 20px;
+        font-family: inherit;
+    }
+    .form-label { display: block; margin-bottom: 8px; font-weight: bold; color: #2d3748; }
+    .info-alert {
+        background: #ebf8ff;
+        color: #2b6cb0;
+        padding: 15px;
+        border-radius: 10px;
+        margin-bottom: 20px;
+        font-size: 0.9rem;
+        line-height: 1.6;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container">
+    <div class="upgrade-box">
+        <h2 style="margin-bottom: 20px; text-align: center; color: #1f27c5;">درخواست همکاری به عنوان تور لیدر</h2>
+        
+        <div class="info-alert">
+            <i class="fas fa-info-circle"></i> 
+            با تکمیل این فرم، درخواست شما برای تبدیل شدن به تور لیدر ثبت می‌شود. پس از بررسی مدارک و صلاحیت توسط تیم مدیریت، حساب کاربری شما ارتقا خواهد یافت.
+        </div>
+        
+        <form method="POST" enctype="multipart/form-data">
+            {% csrf_token %}
+            
+            <div>
+                <label class="form-label">کد ملی</label>
+                <input type="text" name="national_id" class="soft-input" value="{{ user.national_id|default:'' }}" required>
+            </div>
+
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px;">
+                <div>
+                    <label class="form-label">تخصص اصلی</label>
+                    <input type="text" name="specialty" class="soft-input" placeholder="مثلا: طبیعت گردی" required>
+                </div>
+                <div>
+                    <label class="form-label">سابقه کار (سال)</label>
+                    <input type="number" name="experience" class="soft-input" min="0" required>
+                </div>
+            </div>
+
+            <div>
+                <label class="form-label">انگیزه و توضیحات</label>
+                <textarea name="motivation" rows="4" class="soft-input" placeholder="چرا می‌خواهید تور لیدر شوید؟" required></textarea>
+            </div>
+
+            <div>
+                <label class="form-label">تصویر کارت تورلیدری یا رزومه (PDF/JPG)</label>
+                <input type="file" name="documents" class="soft-input" required>
+            </div>
+
+            <button type="submit" class="btn-fill-soft" style="width: 100%; margin-top: 10px;">ارسال درخواست برای مدیریت</button>
+            <a href="{% url 'dashboard' %}" style="display:block; text-align:center; margin-top:15px; text-decoration:none; color:#718096;">بازگشت به داشبورد</a>
+        </form>
+    </div>
+</div>
+{% endblock %}
