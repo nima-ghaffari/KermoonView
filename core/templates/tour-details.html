@@ -1,0 +1,156 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/tour-details.css' %}">
+{% endblock %}
+
+{% block body_class %}detail-body{% endblock %}
+
+{% block content %}
+    <div class="container detail-container">
+        
+        <main class="tour-main-content">
+            <div class="hero-gallery">
+                {% if tour.image %}
+                <img id="detail-image" src="{{ tour.image.url }}" alt="{{ tour.title }}" class="main-img">
+                {% endif %}
+                <span class="category-tag">{{ tour.category }}</span>
+            </div>
+
+            <div class="tour-header-info">
+                <h1>{{ tour.title }}</h1>
+                <div class="tour-meta">
+                    <span><i class="fas fa-map-marker-alt"></i> {{ tour.location }}</span>
+                    <span><i class="fas fa-clock"></i> {{ tour.duration_text }}</span>
+                    <span><i class="fas fa-users"></i> ظرفیت: {{ tour.capacity }} نفر</span>
+                </div>
+            </div>
+
+            <hr class="soft-divider">
+
+            <div class="content-section">
+                <h3><i class="fas fa-align-right icon-title"></i> درباره این تجربه</h3>
+                <p class="desc-text">{{ tour.description }}</p>
+            </div>
+
+            <div class="content-section">
+                <h3><i class="fas fa-user-shield icon-title"></i> راهنمای تور</h3>
+                <div style="background: white; padding: 15px; border-radius: 15px; border: 1px solid #edf2f7; display: flex; align-items: center; gap: 15px;">
+                    {% if tour.leader.avatar %}
+                    <img src="{{ tour.leader.avatar.url }}" style="width: 50px; height: 50px; border-radius: 50%; object-fit: cover;">
+                    {% else %}
+                    <div style="width: 50px; height: 50px; background: #ddd; border-radius: 50%;"></div>
+                    {% endif %}
+                    <div>
+                        <h4 style="margin: 0; color: #2d3748;">{{ tour.leader.get_full_name }}</h4>
+                        <a href="{% url 'guide_detail' tour.leader.leader_profile.id %}" style="font-size: 0.9rem; color: #1f27c5;">مشاهده پروفایل لیدر</a>
+                    </div>
+                </div>
+            </div>
+
+            <hr class="soft-divider">
+
+            <div class="content-section" id="reviews-section">
+                <div class="reviews-header-flex">
+                    <h3><i class="fas fa-comments icon-title"></i> نظرات همسفران</h3>
+                </div>
+
+                <div class="reviews-container" style="margin-bottom: 30px;">
+                    {% for review in reviews %}
+                    <div class="review-card">
+                        <div class="review-header">
+                            <div class="user-info">
+                                <div class="user-avatar">{{ review.user.username|slice:":1" }}</div>
+                                <div class="user-details">
+                                    <h4>{{ review.user.get_full_name|default:review.user.username }}</h4>
+                                    <span class="review-date">{{ review.created_at|date:"Y/m/d" }}</span>
+                                </div>
+                            </div>
+                            <div class="review-rating">
+                                {% with ''|center:review.rating as range %}
+                                {% for _ in range %}<i class="fas fa-star"></i>{% endfor %}
+                                {% endwith %}
+                            </div>
+                        </div>
+                        <div class="review-text">{{ review.text }}</div>
+                    </div>
+                    {% empty %}
+                    <p style="color:#a0aec0;">هنوز نظری برای این تور ثبت نشده است.</p>
+                    {% endfor %}
+                </div>
+
+                {% if can_review %}
+                <div style="background: #f0fff4; padding: 20px; border-radius: 15px; border: 1px solid #c6f6d5;">
+                    <h4 style="color:#276749; margin-bottom:15px;">ثبت تجربه شما</h4>
+                    <form method="POST">
+                        {% csrf_token %}
+                        <div style="margin-bottom:15px;">
+                            <label>امتیاز:</label>
+                            <select name="rating" style="padding:5px; border-radius:5px;">
+                                <option value="5">۵ ستاره</option>
+                                <option value="4">۴ ستاره</option>
+                                <option value="3">۳ ستاره</option>
+                                <option value="2">۲ ستاره</option>
+                                <option value="1">۱ ستاره</option>
+                            </select>
+                        </div>
+                        <textarea name="comment_text" rows="3" style="width:100%; padding:10px; border:1px solid #ddd; border-radius:10px;" placeholder="نظرتان را بنویسید..." required></textarea>
+                        <button type="submit" class="btn-fill-soft" style="width:auto; margin-top:10px;">ارسال نظر</button>
+                    </form>
+                </div>
+                {% elif user.is_authenticated %}
+                <div style="background: #fffaf0; padding: 15px; border-radius: 10px; color: #c05621; border: 1px solid #feebc8;">
+                    <i class="fas fa-info-circle"></i> تنها کسانی که این تور را رزرو کرده‌اند می‌توانند نظر دهند.
+                </div>
+                {% endif %}
+            </div>
+        </main>
+
+        <aside class="tour-sidebar">
+            <div class="booking-widget">
+                <div class="widget-header">
+                    <div class="price-display">
+                        <span class="label">قیمت هر نفر</span>
+                        <div class="amount">{{ tour.price }} <small>تومان</small></div>
+                    </div>
+                </div>
+
+                <form method="POST" action="{% url 'book_tour' tour.id %}">
+                    {% csrf_token %}
+                    <div class="input-group-box">
+                        <div class="input-row border-bottom">
+                            <label>تاریخ شروع</label>
+                            <div style="font-weight: bold; color: #2d3748; padding: 5px 0;">
+                                <i class="far fa-calendar-alt"></i> {{ tour.start_date }}
+                            </div>
+                        </div>
+
+                        <div class="input-row">
+                            <label>تعداد مسافر</label>
+                            <input type="number" name="passengers" min="1" value="1" required style="width:100%; border:none; outline:none;">
+                        </div>
+                    </div>
+                    
+                    <div class="price-calc" style="background:#f7fafc; padding:10px; border-radius:10px; margin-bottom:15px; font-size:0.9rem; color:#718096;">
+                        هتل محل اقامت: <strong>{{ tour.hotel.name|default:"کمپ کویری" }}</strong>
+                    </div>
+
+                    {% if user.is_authenticated %}
+                        <button type="submit" class="book-now-btn">رزرو و پرداخت آنلاین</button>
+                    {% else %}
+                        <a href="{% url 'login' %}?next={{ request.path }}" class="book-now-btn" style="display:block; text-align:center; text-decoration:none;">
+                            برای رزرو وارد شوید
+                        </a>
+                    {% endif %}
+                </form>
+
+                <div class="guarantee-badges">
+                    <span><i class="fas fa-check"></i> گارانتی بهترین قیمت</span>
+                    <span><i class="fas fa-shield-alt"></i> بیمه سفر رایگان</span>
+                </div>
+            </div>
+        </aside>
+
+    </div>
+{% endblock %}
