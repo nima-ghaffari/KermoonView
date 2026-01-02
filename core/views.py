@@ -139,6 +139,46 @@ def create_tour(request):
 
 #=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
 #Statement of login page
+@login_required(login_url='/login/')
+def upgrade_to_leader(request):
+    if request.user.role == 'leader':
+        return redirect('dashboard')
 
+    try:
+        if hasattr(request.user, 'leader_profile'):
+            profile = request.user.leader_profile
+            if not profile.is_verified:
+                messages.info(request, "درخواست شما قبلا ثبت شده و در انتظار تایید است.")
+                return redirect('dashboard')
+    except TourLeaderProfile.DoesNotExist:
+        pass
+
+    if request.method == 'POST':
+        national_id = request.POST.get('national_id')
+        specialty = request.POST.get('specialty')
+        experience = request.POST.get('experience')
+        motivation = request.POST.get('motivation')
+        documents = request.FILES.get('documents')
+
+        request.user.national_id = national_id
+        request.user.save()
+
+        TourLeaderProfile.objects.get_or_create(
+            user=request.user,
+            defaults={
+                'is_verified': False,
+                'specialty': specialty,
+                'experience_years': experience,
+                'motivation': motivation,
+                'documents': documents,
+                'bio': motivation
+            }
+        )
+        messages.success(request, "درخواست شما با موفقیت ثبت شد. پس از بررسی مدارک توسط ادمین، حساب شما به تور لیدر ارتقا می‌یابد.")
+        return redirect('dashboard')
+
+    return render(request, 'upgrade_to_leader.html')
 #=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
+
+
 
