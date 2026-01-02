@@ -1,0 +1,99 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block extra_css %}
+<style>
+    .create-box {
+        max-width: 800px;
+        margin: 120px auto 60px;
+        background: white;
+        padding: 40px;
+        border-radius: 20px;
+        box-shadow: 0 10px 40px rgba(0,0,0,0.05);
+    }
+    .soft-input {
+        width: 100%;
+        padding: 12px;
+        border: 1px solid #e2e8f0;
+        border-radius: 10px;
+        margin-bottom: 20px;
+        font-family: inherit;
+    }
+    .form-label { display: block; margin-bottom: 8px; font-weight: bold; color: #2d3748; }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container">
+    <div class="create-box">
+        <h2 style="margin-bottom: 30px; text-align: center; color: #1f27c5;">ایجاد تور جدید</h2>
+        
+        <form method="POST" enctype="multipart/form-data">
+            {% csrf_token %}
+            
+            {% if form.errors %}
+                <div style="background:#fed7d7; color:red; padding:10px; border-radius:8px; margin-bottom:20px;">
+                    لطفا ورودی‌ها را بررسی کنید.
+                </div>
+            {% endif %}
+
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px;">
+                <div>
+                    <label class="form-label">عنوان تور</label>
+                    {{ form.title }}
+                </div>
+                <div>
+                    <label class="form-label">دسته بندی</label>
+                    {{ form.category }}
+                </div>
+            </div>
+
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px;">
+                <div>
+                    <label class="form-label">قیمت (تومان)</label>
+                    {{ form.price }}
+                </div>
+                <div>
+                    <label class="form-label">ظرفیت (نفر)</label>
+                    {{ form.capacity }}
+                </div>
+            </div>
+
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px;">
+                <div>
+                    <label class="form-label">تاریخ شروع</label>
+                    {{ form.start_date }}
+                </div>
+                <div>
+                    <label class="form-label">مدت زمان</label>
+                    {{ form.duration_text }}
+                </div>
+            </div>
+
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px;">
+                <div>
+                    <label class="form-label">مکان برگزاری</label>
+                    {{ form.location }}
+                </div>
+                <div>
+                    <label class="form-label">هتل محل اقامت</label>
+                    {{ form.hotel }}
+                </div>
+            </div>
+
+            <div>
+                <label class="form-label">تصویر تور</label>
+                {{ form.image }}
+            </div>
+
+            <div>
+                <label class="form-label">توضیحات کامل</label>
+                {{ form.description }}
+            </div>
+
+            <button type="submit" class="btn-fill-soft" style="width: 100%; margin-top: 20px;">ثبت تور برای بررسی</button>
+            <a href="{% url 'dashboard' %}" style="display:block; text-align:center; margin-top:15px; text-decoration:none; color:#718096;">بازگشت</a>
+        </form>
+    </div>
+</div>
+{% endblock %}
