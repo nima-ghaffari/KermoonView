@@ -1,0 +1,91 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/login.css' %}">
+<style>
+    .auth-tab.active { background: white !important; color: #1f27c5 !important; border: 2px solid #1f27c5 !important; }
+    .auth-content { display: none; }
+    .auth-content.active { display: block; animation: fadeIn 0.4s; }
+    @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+    .error-msg { background: #fff5f5; color: #c53030; padding: 12px; border-radius: 10px; margin-bottom: 20px; font-size: 0.9rem; border: 1px solid #feb2b2; text-align: center; }
+</style>
+{% endblock %}
+
+{% block content %}
+<section class="auth-wrapper" style="margin-top: 120px; margin-bottom: 60px;">
+    <div class="auth-card" style="max-width: 450px; margin: 0 auto; background: white; padding: 30px; border-radius: 20px; box-shadow: 0 15px 35px rgba(0,0,0,0.1);">
+        
+        <div class="auth-tabs" style="display: flex; gap: 10px; margin-bottom: 30px; background: #f1f5f9; padding: 5px; border-radius: 15px;">
+            <button type="button" class="auth-tab {% if active_tab != 'register' %}active{% endif %}" onclick="toggleAuth('login')" style="flex: 1; padding: 12px; border: none; border-radius: 12px; cursor: pointer; font-family: inherit; font-weight: bold;">ورود</button>
+            <button type="button" class="auth-tab {% if active_tab == 'register' %}active{% endif %}" onclick="toggleAuth('register')" style="flex: 1; padding: 12px; border: none; border-radius: 12px; cursor: pointer; font-family: inherit; font-weight: bold;">ثبت‌نام</button>
+        </div>
+
+        <!-- sign in  -->
+        <div id="login-section" class="auth-content {% if active_tab != 'register' %}active{% endif %}">
+            {% if error_login %}<div class="error-msg"><i class="fas fa-exclamation-circle"></i> {{ error_login }}</div>{% endif %}
+            <h3 style="margin-bottom: 20px; color: #2d3748; text-align: center;">خوش آمدید</h3>
+            <form method="POST">
+                {% csrf_token %}
+                <input type="hidden" name="action" value="login">
+                <div class="form-group" style="margin-bottom: 15px;">
+                    <label style="display: block; margin-bottom: 5px; font-weight: bold;">نام کاربری</label>
+                    <input type="text" name="username" class="soft-input" style="width: 100%; padding: 12px; border-radius: 10px; border: 1px solid #ddd;" required>
+                </div>
+                <div class="form-group" style="margin-bottom: 20px;">
+                    <label style="display: block; margin-bottom: 5px; font-weight: bold;">رمز عبور</label>
+                    <input type="password" name="password" class="soft-input" style="width: 100%; padding: 12px; border-radius: 10px; border: 1px solid #ddd;" required>
+                </div>
+                <button type="submit" class="submit-btn" style="width: 100%; padding: 14px; background: #1f27c5; color: white; border: none; border-radius: 12px; font-weight: bold; cursor: pointer;">ورود به حساب</button>
+            </form>
+        </div>
+
+        <!-- ثبت نام (ساده شده) -->
+        <div id="register-section" class="auth-content {% if active_tab == 'register' %}active{% endif %}">
+            {% if error_reg %}<div class="error-msg"><i class="fas fa-exclamation-circle"></i> {{ error_reg }}</div>{% endif %}
+            <h3 style="margin-bottom: 20px; color: #2d3748; text-align: center;">ایجاد حساب کاربری</h3>
+            <form method="POST">
+                {% csrf_token %}
+                <input type="hidden" name="action" value="register">
+                
+                <div class="form-group" style="margin-bottom: 15px;">
+                    <label style="display: block; margin-bottom: 5px; font-weight: bold;">نام و نام‌خانوادگی</label>
+                    <input type="text" name="first_name" class="soft-input" style="width: 100%; padding: 12px; border-radius: 10px; border: 1px solid #ddd;" required>
+                </div>
+
+                <div class="form-group" style="margin-bottom: 15px;">
+                    <label style="display: block; margin-bottom: 5px; font-weight: bold;">نام کاربری (انگلیسی)</label>
+                    <input type="text" name="username" class="soft-input" style="width: 100%; padding: 12px; border-radius: 10px; border: 1px solid #ddd;" required>
+                </div>
+
+                <div class="form-group" style="margin-bottom: 15px;">
+                    <label style="display: block; margin-bottom: 5px; font-weight: bold;">شماره موبایل</label>
+                    <input type="text" name="phone" class="soft-input" style="width: 100%; padding: 12px; border-radius: 10px; border: 1px solid #ddd;" required>
+                </div>
+
+                <div class="form-group" style="margin-bottom: 20px;">
+                    <label style="display: block; margin-bottom: 5px; font-weight: bold;">رمز عبور</label>
+                    <input type="password" name="password" class="soft-input" style="width: 100%; padding: 12px; border-radius: 10px; border: 1px solid #ddd;" required>
+                </div>
+
+                <button type="submit" class="submit-btn" style="width: 100%; padding: 14px; background: #1f27c5; color: white; border: none; border-radius: 12px; font-weight: bold; cursor: pointer;">ثبت‌نام و عضویت</button>
+            </form>
+        </div>
+    </div>
+</section>
+
+<script>
+    function toggleAuth(type) {
+        document.querySelectorAll('.auth-tab').forEach(t => t.classList.remove('active'));
+        document.querySelectorAll('.auth-content').forEach(c => c.classList.remove('active'));
+        
+        if(type === 'login') {
+            document.querySelector('.auth-tab:nth-child(1)').classList.add('active');
+            document.getElementById('login-section').classList.add('active');
+        } else {
+            document.querySelector('.auth-tab:nth-child(2)').classList.add('active');
+            document.getElementById('register-section').classList.add('active');
+        }
+    }
+</script>
+{% endblock %}
