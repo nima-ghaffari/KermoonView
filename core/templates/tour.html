@@ -1,0 +1,59 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/tours.css' %}">
+{% endblock %}
+
+{% block content %}
+    <section class="soft-search-header">
+        <div class="container">
+            <h1>مقصد بعدی شما کجاست؟</h1>
+            <form method="GET" action="{% url 'tours' %}">
+                <div class="soft-search-box">
+                    <i class="fas fa-search search-icon"></i>
+                    <input type="text" name="q" placeholder="جستجو (مثلا: کویر، بم...)" value="{{ request.GET.q|default:'' }}">
+                    <button type="submit" class="search-btn">بیابید</button>
+                </div>
+            </form>
+        </div>
+    </section>
+
+    <section class="tours-section">
+        <div class="container">
+            <div class="soft-grid">
+                {% for tour in tours %}
+                <div class="soft-card">
+                    <div class="soft-card-image">
+                        {% if tour.image %}
+                        <img src="{{ tour.image.url }}" alt="{{ tour.title }}">
+                        {% endif %}
+                        <span class="soft-category">{{ tour.category }}</span>
+                    </div>
+                    
+                    <div class="soft-card-content">
+                        <div class="soft-card-header">
+                            <h3 class="soft-title">{{ tour.title }}</h3>
+                            <span class="soft-price">{{ tour.price }} تومان</span>
+                        </div>
+                        
+                        <ul class="soft-features">
+                            <li><i class="fas fa-map-marker-alt"></i> {{ tour.location }}</li>
+                            <li><i class="fas fa-clock"></i> {{ tour.duration_text }}</li>
+                        </ul>
+                        
+                        <div class="soft-actions">
+                            <a href="{% url 'tour_detail' tour.id %}" class="btn-outline-soft">جزئیات</a>
+                            <a href="{% url 'tour_detail' tour.id %}" class="btn-fill-soft">رزرو</a>
+                        </div>
+                    </div>
+                </div>
+                {% empty %}
+                <div class="no-results-msg" style="display:block;">
+                    <h3>متاسفانه توری با این مشخصات یافت نشد :(</h3>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+    </section>
+{% endblock %}
