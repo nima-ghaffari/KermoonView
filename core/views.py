@@ -53,3 +53,25 @@ def tour_detail(request, tour_id):
             
     return render(request, 'tour-details.html', {'tour': tour, 'reviews': reviews, 'can_review': can_review})
 #=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
+
+#=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
+# Guide list for Tour and Tourleader
+def guide_list(request):
+    guides = TourLeaderProfile.objects.filter(is_verified=True)
+    return render(request, 'guides.html', {'guides': guides})
+
+def guide_detail(request, guide_id):
+    guide = get_object_or_404(TourLeaderProfile, pk=guide_id)
+    tours = Tour.objects.filter(leader=guide.user, is_active=True)
+    reviews = guide.reviews.filter(is_approved=True)
+    
+    if request.method == 'POST' and request.user.is_authenticated:
+        comment_text = request.POST.get('comment')
+        rating_val = request.POST.get('rating')
+        if comment_text and rating_val:
+            LeaderReview.objects.create(leader=guide, user=request.user, comment=comment_text, rating=int(rating_val), is_approved=False)
+            messages.info(request, "نظر شما ثبت شد.")
+            return redirect('guide_detail', guide_id=guide_id)
+            
+    return render(request, 'guide-details.html', {'guide': guide, 'tours': tours, 'reviews': reviews})
+#=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
