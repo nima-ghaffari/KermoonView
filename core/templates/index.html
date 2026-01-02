@@ -1,0 +1,127 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block content %}
+    <!-- Hero Section -->
+    <section class="hero" id="home">
+        <div class="hero-content">
+            <h1>!کرمونو بگرد</h1>
+            <p class="hero-subtitle">از سکوت کویر لوت تا شکوه ارگ بم؛ کرمان را با ما زندگی کن</p>
+            <div class="hero-buttons">
+                <a href="{% url 'tours' %}" class="btn-primary">مشاهده تورها</a>
+            </div>
+        </div>
+    </section>
+
+    <!-- Packages Section -->
+    <section class="packages" id="packages">
+        <div class="container">
+            <h2 class="section-title">تورهای پیشنهادی فصل</h2>
+            <div class="packages-grid">
+                
+                {% for tour in tours %}
+                <div class="package-card">
+                    <span class="package-badge">{{ tour.category }}</span>
+                    <div class="package-image">
+                        {% if tour.image %}
+                        <img src="{{ tour.image.url }}" alt="{{ tour.title }}">
+                        {% endif %}
+                    </div>
+                    <div class="package-content">
+                        <div class="package-header">
+                            <span class="package-title">{{ tour.title }}</span>
+                            <span class="package-price">{{ tour.price }} تومان</span>
+                        </div>
+                        <ul class="package-features">
+                            <li><i class="fas fa-check"></i> {{ tour.location }}</li>
+                            <li><i class="fas fa-check"></i> {{ tour.duration_text }}</li>
+                        </ul>
+                        <a href="{% url 'tour_detail' tour.id %}" class="package-btn" style="text-align:center; text-decoration:none; display:block;">
+                            رزرو کنید
+                        </a>
+                    </div>
+                </div>
+                {% empty %}
+                <p>در حال حاضر توری فعال نیست.</p>
+                {% endfor %}
+
+            </div>
+        </div>
+    </section>
+
+    <!-- Reviews Section  -->
+    <section class="packages" id="reviews" style="padding: 60px 0; background-color: #f8f9fc;">
+        <div class="container">
+            <h2 class="section-title">تجربیات اخیر کاربران</h2>
+            <p style="text-align: center; margin-bottom: 40px; color: #718096;">کاربران ما درباره تورها و لیدرهای کرمون ویو چه می‌گویند؟</p>
+            
+            <div class="packages-grid">
+                
+                {% for item in reviews %}
+                <div class="package-card">
+                    <div class="package-image">
+                        {% if item.tour %}
+                            <img src="{{ item.tour.image.url }}" alt="{{ item.tour.title }}">
+                            <span class="package-badge" style="background: #48bb78;">نظر تور</span>
+                        {% else %}
+                            {% if item.leader.user.avatar %}
+                                <img src="{{ item.leader.user.avatar.url }}" alt="{{ item.leader.user.get_full_name }}">
+                            {% else %}
+                                <img src="https://ui-avatars.com/api/?name={{ item.leader.user.username }}" alt="Leader">
+                            {% endif %}
+                            <span class="package-badge" style="background: #2b6cb0;">نظر لیدر</span>
+                        {% endif %}
+                    </div>
+
+                    <div class="package-content">
+                        <div class="package-header">
+                            <span class="package-title" style="font-size: 1rem;">
+                                {% if item.tour %}
+                                    {{ item.tour.title }}
+                                {% else %}
+                                    لیدر: {{ item.leader.user.get_full_name }}
+                                {% endif %}
+                            </span>
+                        </div>
+
+                        <div style="color: #f6ad55; margin-bottom: 10px; font-size: 0.8rem;">
+                            {% with ''|center:item.rating as range %}
+                            {% for _ in range %}<i class="fas fa-star"></i>{% endfor %}
+                            {% endwith %}
+                        </div>
+
+                        <p style="color:#718096; font-size:0.9rem; margin-bottom:15px; min-height: 60px;">
+                            "
+                            {% if item.tour %}
+                                {{ item.text|truncatewords:20 }}
+                            {% else %}
+                                {{ item.comment|truncatewords:20 }}
+                            {% endif %}
+                            "
+                        </p>
+                        
+                        <div style="display: flex; justify-content: space-between; align-items: center; border-top: 1px solid #eee; padding-top: 10px;">
+                            <small style="color:#a0aec0;">
+                                <i class="fas fa-user"></i> {{ item.user.get_full_name|default:item.user.username }}
+                            </small>
+
+                            {% if item.tour %}
+                                <a href="{% url 'tour_detail' item.tour.id %}" style="color: #1f27c5; font-size: 0.85rem; font-weight: bold; text-decoration: none;">
+                                    مشاهده تور &larr;
+                                </a>
+                            {% else %}
+                                <a href="{% url 'guide_detail' item.leader.id %}" style="color: #1f27c5; font-size: 0.85rem; font-weight: bold; text-decoration: none;">
+                                    پروفایل لیدر &larr;
+                                </a>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+                {% empty %}
+                <p style="text-align:center; width:100%; color:#888;">هنوز نظری ثبت نشده است.</p>
+                {% endfor %}
+
+            </div>
+        </div>
+    </section>
+{% endblock %}
