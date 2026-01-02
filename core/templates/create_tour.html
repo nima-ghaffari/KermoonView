@@ -2,6 +2,7 @@
 {% load static %}
 
 {% block extra_css %}
+<link rel="stylesheet" href="https://unpkg.com/persian-datepicker@1.2.0/dist/css/persian-datepicker.min.css">
 <style>
     .create-box {
         max-width: 800px;
@@ -20,6 +21,10 @@
         font-family: inherit;
     }
     .form-label { display: block; margin-bottom: 8px; font-weight: bold; color: #2d3748; }
+    
+    .datepicker-plot-area {
+        font-family: 'Vazirmatn', sans-serif !important;
+    }
 </style>
 {% endblock %}
 
@@ -32,8 +37,18 @@
             {% csrf_token %}
             
             {% if form.errors %}
-                <div style="background:#fed7d7; color:red; padding:10px; border-radius:8px; margin-bottom:20px;">
-                    لطفا ورودی‌ها را بررسی کنید.
+                <div style="background:#fed7d7; color:#c53030; padding:15px; border-radius:8px; margin-bottom:20px;">
+                    <p style="font-weight:bold; margin-bottom:5px;">لطفا خطاها را بررسی کنید:</p>
+                    <ul style="padding-right: 20px;">
+                    {% for field in form %}
+                        {% for error in field.errors %}
+                            <li>{{ field.label }}: {{ error }}</li>
+                        {% endfor %}
+                    {% endfor %}
+                    {% for error in form.non_field_errors %}
+                        <li>{{ error }}</li>
+                    {% endfor %}
+                    </ul>
                 </div>
             {% endif %}
 
@@ -61,7 +76,7 @@
 
             <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px;">
                 <div>
-                    <label class="form-label">تاریخ شروع</label>
+                    <label class="form-label">تاریخ شروع (شمسی)</label>
                     {{ form.start_date }}
                 </div>
                 <div>
@@ -96,4 +111,25 @@
         </form>
     </div>
 </div>
+{% endblock %}
+
+{% block extra_js %}
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script src="https://unpkg.com/persian-date@1.1.0/dist/persian-date.min.js"></script>
+<script src="https://unpkg.com/persian-datepicker@1.2.0/dist/js/persian-datepicker.min.js"></script>
+
+<script type="text/javascript">
+    $(document).ready(function() {
+        $(".jalali-date").pDatepicker({
+            format: 'YYYY-MM-DD', 
+            initialValue: false,
+            minDate: new persianDate().valueOf(), 
+            calendar: {
+                persian: {
+                    locale: 'fa'
+                }
+            }
+        });
+    });
+</script>
 {% endblock %}

@@ -8,9 +8,9 @@ from django.contrib import messages
 
 from .models import (
     Tour, Reservation, TourLeaderProfile, 
-    Post, PostComment, Comment, LeaderReview, User)
-
-from .forms import TourForm,ProfileUpdateForm
+    Post, PostComment, Comment, LeaderReview, User
+)
+from .forms import TourForm, ProfileUpdateForm
 
 #=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
 # Public sectors --> home tour weblog
@@ -95,11 +95,21 @@ def post_detail(request, post_id):
 
 #=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
 # State of Reservations and Ticket management . 
+
 @login_required(login_url='/login/')
 def book_tour(request, tour_id):
     if request.method == 'POST':
         tour = get_object_or_404(Tour, pk=tour_id)
         count = int(request.POST.get('passengers', 1))
+        
+        if tour.capacity < count:
+            messages.error(request, "متاسفانه ظرفیت تور تکمیل شده است.")
+            return redirect('tour_detail', tour_id=tour.id)
+            
+        if tour.hotel and tour.hotel.capacity < count:
+            messages.error(request, "ظرفیت هتل برای این تعداد تکمیل شده است.")
+            return redirect('tour_detail', tour_id=tour.id)
+
         Reservation.objects.create(
             user=request.user, 
             tour=tour, 
@@ -107,8 +117,17 @@ def book_tour(request, tour_id):
             total_price=tour.price * count,
             status='pending'
         )
+        
+        tour.capacity -= count
+        tour.save()
+        
+        if tour.hotel:
+            tour.hotel.capacity -= count
+            tour.hotel.save()
+
         messages.success(request, "رزرو انجام شد و در انتظار تایید مدیریت است.")
         return redirect('dashboard')
+        
     return redirect('tour_detail', tour_id=tour_id)
 
 @login_required(login_url='/login/')
@@ -129,7 +148,9 @@ def create_tour(request):
         if form.is_valid():
             tour = form.save(commit=False)
             tour.leader = request.user
+            # مهم: تور غیرفعال ساخته می‌شود تا ادمین تایید کند
             tour.is_active = False 
+            tour.save()
             messages.success(request, "تور ثبت شد و پس از تایید مدیریت نمایش داده می‌شود.")
             return redirect('dashboard')
     else: 
@@ -174,7 +195,7 @@ def upgrade_to_leader(request):
                 'bio': motivation
             }
         )
-        messages.success(request, "درخواست شما با موفقیت ثبت شد. پس از بررسی مدارک توسط ادمین، حساب شما به تور لیدر ارتقا می‌یابد.")
+        messages.success(request, "درخواست شما ثبت شد. پس از بررسی مدارک در پنل ادمین، حساب شما ارتقا می‌یابد.")
         return redirect('dashboard')
 
     return render(request, 'upgrade_to_leader.html')
@@ -231,7 +252,7 @@ def login_view(request):
                     try:
                         if hasattr(user, 'leader_profile') and not user.leader_profile.is_verified:
                             return render(request, 'login.html', {
-                                'error_login': 'حساب لیدر شما هنوز توسط مدیریت تایید نشده است. لطفا منتظر بمانید.',
+                                'error_login': 'حساب لیدر شما هنوز تایید نشده است.',
                                 'active_tab': 'login'
                             })
                     except TourLeaderProfile.DoesNotExist:
@@ -269,7 +290,7 @@ def login_view(request):
                 )
                 
                 login(request, new_user)
-                messages.success(request, "ثبت نام با موفقیت انجام شد.")
+                messages.success(request, "ثبت نام موفقیت‌آمیز بود.")
                 return redirect('dashboard')
                 
             except Exception as e:
@@ -284,5 +305,3 @@ def logout_view(request):
     logout(request)
     return redirect('index')
 #=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
-
-

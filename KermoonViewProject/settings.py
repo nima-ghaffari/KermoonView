@@ -12,6 +12,7 @@ https://docs.djangoproject.com/en/6.0/ref/settings/
 
 from pathlib import Path
 import os
+
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
@@ -37,8 +38,31 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
-    'core',
+    
+    # Third-party apps
+    'django_jalali',
+    
+    # Local apps
+    # نکته مهم: خط 'core' حذف شد چون 'core.apps.CoreConfig' وجود دارد.
+    # وجود همزمان هر دو باعث ارور تکراری بودن اپلیکیشن می‌شود.
+    'core.apps.CoreConfig',
 ]
+
+# تنظیمات تاریخ شمسی
+JALALI_DATE_DEFAULTS = {
+   'Strftime': {
+        'date': '%y/%m/%d',
+        'datetime': '%H:%M:%S _ %y/%m/%d',
+    },
+    'Static': {
+        'js': [
+            # اگر از ادمین جنگو استفاده می‌کنید این‌ها لازم نیستند، خودش هندل می‌کند
+        ],
+        'css': {
+            'all': [],
+        }
+    },
+}
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
@@ -80,6 +104,9 @@ DATABASES = {
     }
 }
 
+# رفع وارنینگ‌های مربوط به Primary Key
+DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+
 
 # Password validation
 # https://docs.djangoproject.com/en/6.0/ref/settings/#auth-password-validators
@@ -115,7 +142,6 @@ USE_TZ = True
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/6.0/howto/static-files/
 
-STATIC_URL = 'static/'
 AUTH_USER_MODEL = 'core.User'
 
 STATIC_URL = '/static/'
