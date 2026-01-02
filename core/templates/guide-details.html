@@ -1,0 +1,125 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/guides.css' %}">
+{% endblock %}
+
+{% block content %}
+    <div class="container guide-profile-layout">
+        
+        <aside class="profile-sidebar">
+            <div class="profile-card-sticky">
+                {% if guide.user.avatar %}
+                <img src="{{ guide.user.avatar.url }}" class="profile-avatar-img">
+                {% endif %}
+                
+                <h1 class="profile-name">{{ guide.user.get_full_name }}</h1>
+                <span class="profile-role">تور لیدر تخصصی</span>
+
+                <ul class="profile-info-list" style="margin-top:20px;">
+                    <li>
+                        <span class="icon-box"><i class="fas fa-language"></i></span>
+                        <div><small>زبان‌ها</small><span>{{ guide.languages }}</span></div>
+                    </li>
+                    <li>
+                        <span class="icon-box"><i class="fas fa-star"></i></span>
+                        <div><small>تخصص</small><span>{{ guide.specialty }}</span></div>
+                    </li>
+                </ul>
+            </div>
+        </aside>
+
+        <main class="profile-main-content">
+            <section class="content-card">
+                <div class="card-header">
+                    <h3><i class="fas fa-user-circle"></i> درباره من</h3>
+                </div>
+                <div class="card-body">
+                    <p class="bio-text">{{ guide.bio }}</p>
+                </div>
+            </section>
+
+            <section class="content-card">
+                <div class="card-header">
+                    <h3><i class="fas fa-calendar-alt"></i> تورهای آینده (قابل رزرو)</h3>
+                </div>
+                <div class="card-body">
+                    <div class="upcoming-grid">
+                        {% for tour in tours %}
+                        <div class="mini-tour-item">
+                            {% if tour.image %}
+                            <img src="{{ tour.image.url }}" class="mini-tour-img">
+                            {% endif %}
+                            <div class="mini-tour-body">
+                                <span class="mini-tour-title">{{ tour.title }}</span>
+                                <span class="mini-tour-date"><i class="far fa-calendar"></i> {{ tour.start_date }}</span>
+                                <a href="{% url 'tour_detail' tour.id %}" class="btn-mini-action">رزرو</a>
+                            </div>
+                        </div>
+                        {% empty %}
+                        <p>در حال حاضر توری توسط این لیدر ارائه نشده است.</p>
+                        {% endfor %}
+                    </div>
+                </div>
+            </section>
+<section class="content-card">
+    <div class="card-header">
+        <h3><i class="fas fa-comments"></i> نظرات مسافران</h3>
+    </div>
+    <div class="card-body">
+        
+        <div id="guide-reviews" class="reviews-list">
+            {% for review in reviews %}
+            <div class="guide-review-item" style="background:#f9f9f9; padding:15px; border-radius:10px; margin-bottom:15px;">
+                <div class="g-review-header" style="display:flex; justify-content:space-between; margin-bottom:10px;">
+                    <span class="g-reviewer-name" style="font-weight:bold;">{{ review.user.get_full_name|default:review.user.username }}</span>
+                    <div style="color:#f6ad55;">
+                        {% with ''|center:review.rating as range %}
+                        {% for _ in range %}
+                             <i class="fas fa-star"></i>
+                        {% endfor %}
+                        {% endwith %}
+                        <span style="color:#ccc; font-size:0.8rem;">({{ review.rating }}/5)</span>
+                    </div>
+                </div>
+                <p class="g-review-text" style="color:#555;">{{ review.comment }}</p>
+                <small style="color:#aaa;">{{ review.created_at|date:"Y/m/d" }}</small>
+            </div>
+            {% empty %}
+            <p style="text-align:center; color:#888;">هنوز نظری ثبت نشده است. اولین نفر باشید!</p>
+            {% endfor %}
+        </div>
+
+        <hr style="margin: 30px 0; border:0; border-top:1px solid #eee;">
+
+        {% if user.is_authenticated %}
+        <h4 style="margin-bottom:15px;">ثبت نظر جدید</h4>
+        <form method="POST">
+            {% csrf_token %}
+            <div style="margin-bottom:15px;">
+                <label>امتیاز شما:</label>
+                <select name="rating" style="padding:8px; border-radius:5px; border:1px solid #ddd;">
+                    <option value="5">۵ - عالی</option>
+                    <option value="4">۴ - خوب</option>
+                    <option value="3">۳ - معمولی</option>
+                    <option value="2">۲ - ضعیف</option>
+                    <option value="1">۱ - افتضاح</option>
+                </select>
+            </div>
+            <div style="margin-bottom:15px;">
+                <textarea name="comment" rows="4" placeholder="تجربه خود را بنویسید..." style="width:100%; padding:10px; border-radius:8px; border:1px solid #ddd;" required></textarea>
+            </div>
+            <button type="submit" class="btn-fill-soft" style="width:auto; padding:10px 30px;">ارسال نظر</button>
+        </form>
+        {% else %}
+        <div style="background:#ebf8ff; color:#2b6cb0; padding:15px; border-radius:10px; text-align:center;">
+            برای ثبت نظر باید <a href="{% url 'login' %}?next={{ request.path }}" style="font-weight:bold;">وارد سایت شوید</a>.
+        </div>
+        {% endif %}
+
+    </div>
+</section>
+        </main>
+    </div>
+{% endblock %}
