@@ -1,0 +1,48 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/guides.css' %}">
+{% endblock %}
+
+{% block content %}
+    <section class="soft-search-header">
+        <div class="container">
+            <h1>همسفر حرفه‌ای خود را پیدا کنید</h1>
+        </div>
+    </section>
+
+    <section class="guides-section">
+        <div class="container">
+            <div class="soft-grid">
+                {% for guide in guides %}
+                <div class="soft-card">
+                    <div class="soft-card-image">
+                        {% if guide.user.avatar %}
+                        <img src="{{ guide.user.avatar.url }}" alt="{{ guide.user.get_full_name }}">
+                        {% endif %}
+                        <span class="soft-category">{{ guide.specialty }}</span>
+                    </div>
+                    
+                    <div class="soft-card-content">
+                        <div class="soft-card-header">
+                            <h3 class="soft-title">{{ guide.user.get_full_name }}</h3>
+                            <span class="soft-tag-blue">{{ guide.experience_years }} سال سابقه</span>
+                        </div>
+                        
+                        <ul class="soft-info-list">
+                            <li><i class="fas fa-language"></i> {{ guide.languages }}</li>
+                        </ul>
+                        
+                        <div class="soft-actions">
+                            <a href="{% url 'guide_detail' guide.id %}" class="btn-fill-soft">مشاهده پروفایل</a>
+                        </div>
+                    </div>
+                </div>
+                {% empty %}
+                <p class="no-results-msg" style="display:block;">تور لیدری یافت نشد.</p>
+                {% endfor %}
+            </div>
+        </div>
+    </section>
+{% endblock %}
