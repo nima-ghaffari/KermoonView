@@ -1,0 +1,236 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/dashboard.css' %}">
+<style>
+    .tab-content-item { display: none; animation: fadeIn 0.4s ease-in-out; }
+    .tab-content-item.active-content { display: block; }
+    .dash-menu li { cursor: pointer; transition: all 0.3s; }
+    .dash-menu li.active-btn { background-color: #f7fafc; color: #1f27c5; font-weight: bold; border-right: 4px solid #1f27c5; }
+    @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+    
+    .edit-profile-card { background: #f8f9fc; padding: 30px; border-radius: 20px; border: 1px solid #edf2f7; }
+    .profile-upload-section { display: flex; align-items: center; gap: 20px; margin-bottom: 30px; background: white; padding: 20px; border-radius: 15px; box-shadow: 0 4px 12px rgba(0,0,0,0.03); }
+    .avatar-preview { width: 100px; height: 100px; border-radius: 50%; object-fit: cover; border: 4px solid #fff; box-shadow: 0 4px 15px rgba(0,0,0,0.1); }
+    .soft-input { width: 100%; padding: 12px; border: 2px solid #e2e8f0; border-radius: 12px; font-family: inherit; margin-top: 5px; transition: 0.3s; }
+    .soft-input:focus { border-color: #1f27c5; outline: none; background: #fff; }
+    .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-bottom: 20px; }
+    @media (max-width: 600px) { .form-row { grid-template-columns: 1fr; } }
+</style>
+{% endblock %}
+
+{% block content %}
+    <div class="container dashboard-container" style="margin-top: 100px;">
+        
+        <!-- Sidebar -->
+        <aside class="dash-sidebar">
+            <div class="user-profile-summary">
+                {% if user.avatar %}
+                    <img src="{{ user.avatar.url }}" class="dash-avatar" style="object-fit: cover;">
+                {% else %}
+                    <img src="https://ui-avatars.com/api/?name={{ user.username }}&background=ebf8ff&color=1f27c5" class="dash-avatar">
+                {% endif %}
+                <h3>{{ user.get_full_name|default:user.username }}</h3>
+                <span class="role-badge">{{ user.get_role_display }}</span>
+            </div>
+            
+            <ul class="dash-menu">
+                <li onclick="showTab('my-tours')" id="btn-my-tours" class="active-btn">
+                    <i class="fas fa-ticket-alt"></i> تورهای من
+                </li>
+                <li onclick="showTab('edit-profile')" id="btn-edit-profile">
+                    <i class="fas fa-user-cog"></i> ویرایش پروفایل
+                </li>
+                {% if user.role == 'leader' %}
+                <li onclick="showTab('leader-tours')" id="btn-leader-tours">
+                    <i class="fas fa-list-alt"></i> تورهای ساخته شده
+                </li>
+                <li>
+                    <a href="{% url 'create_tour' %}" style="text-decoration:none; color:inherit; display:flex; align-items:center; gap:10px;">
+                        <i class="fas fa-plus-circle"></i> ایجاد تور جدید
+                    </a>
+                </li>
+                {% endif %}
+                <li>
+                    <a href="{% url 'logout' %}" style="color:#e53e3e; text-decoration:none; display:flex; align-items:center; gap:10px;">
+                        <i class="fas fa-sign-out-alt"></i> خروج از حساب
+                    </a>
+                </li>
+            </ul>
+        </aside>
+
+        <!-- Main Content -->
+        <main class="dash-content">
+            
+            <div class="tickets-grid">
+                {% for res in reservations %}
+                <div class="ticket-card">
+                    {% if res.status == 'confirmed' %}
+                        <div class="ticket-status success" style="background:#def7ec; color:#046c4e;">تایید شده</div>
+                    {% elif res.status == 'pending' %}
+                        <div class="ticket-status warning" style="background:#fff3cd; color:#856404;">در انتظار تایید</div>
+                    {% else %}
+                        <div class="ticket-status error" style="background:#fed7d7; color:#c53030;">رد شده</div>
+                    {% endif %}
+
+                    <h3 style="margin: 25px 0 10px;">{{ res.tour.title }}</h3>
+                    <p style="font-size: 0.9rem; color: #718096;"><i class="far fa-calendar"></i> {{ res.tour.start_date }}</p>
+                    <p style="font-size: 0.9rem; color: #718096;"><i class="fas fa-users"></i> {{ res.passengers_count }} نفر</p>
+                    <div style="margin-top: 15px; font-weight: bold; color: #1f27c5;">{{ res.total_price }} تومان</div>
+
+                    {% if res.status == 'confirmed' %}
+                        <a href="{% url 'view_ticket' res.id %}" class="btn-outline-soft" style="display:block; text-align:center; margin-top:15px; text-decoration:none; font-size:0.9rem;">
+                            <i class="fas fa-ticket-alt"></i> دریافت بلیط
+                        </a>
+                    {% endif %}
+                </div>
+                {% empty %}
+                <div style="text-align: center; padding: 40px; grid-column: 1/-1;">
+                    <p style="color: #a0aec0;">هنوز سفری را رزرو نکرده‌اید.</p>
+                </div>
+                {% endfor %}
+            </div>
+
+            <div id="view-edit-profile" class="tab-content-item">
+                <div class="section-header">
+                    <h2><i class="fas fa-user-edit"></i> ویرایش اطلاعات پروفایل</h2>
+                </div>
+                
+                <div class="edit-profile-card">
+                    <form method="POST" enctype="multipart/form-data">
+                        {% csrf_token %}
+                        
+                        <div class="profile-upload-section">
+                            {% if user.avatar %}
+                                <img src="{{ user.avatar.url }}" class="avatar-preview" id="preview-img">
+                            {% else %}
+                                <div class="avatar-preview" style="background: #e2e8f0; display: flex; align-items: center; justify-content: center;" id="preview-img">
+                                    <i class="fas fa-user fa-2x" style="color: #a0aec0;"></i>
+                                </div>
+                            {% endif %}
+                            <div style="flex: 1;">
+                                <label style="font-weight: bold; display: block; margin-bottom: 5px;">تغییر تصویر چهره</label>
+                                {{ profile_form.avatar }}
+                                <small style="color: #a0aec0; display: block; margin-top: 5px;">فرمت‌های مجاز: JPG, PNG. حداکثر ۲ مگابایت</small>
+                            </div>
+                        </div>
+
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label>{{ profile_form.first_name.label }}</label>
+                                {{ profile_form.first_name }}
+                            </div>
+                            <div class="form-group">
+                                <label>{{ profile_form.last_name.label }}</label>
+                                {{ profile_form.last_name }}
+                            </div>
+                        </div>
+
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label>{{ profile_form.email.label }}</label>
+                                {{ profile_form.email }}
+                            </div>
+                            <div class="form-group">
+                                <label>{{ profile_form.phone_number.label }}</label>
+                                {{ profile_form.phone_number }}
+                            </div>
+                        </div>
+
+                        <div style="margin-top: 20px; display: flex; gap: 15px;">
+                            <button type="submit" class="btn-fill-soft" style="border: none; cursor: pointer; padding: 12px 30px; display: flex; align-items: center; gap: 8px;">
+                                <i class="fas fa-save"></i> ذخیره تغییرات
+                            </button>
+                            <button type="button" onclick="showTab('my-tours')" class="btn-outline-soft" style="padding: 12px 25px;">انصراف</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+
+            {% if user.role == 'leader' %}
+            <div id="view-leader-tours" class="tab-content-item">
+                <div class="section-header">
+                    <h2>تورهای طراحی شده توسط شما</h2>
+                </div>
+                <div class="edit-profile-card" style="padding: 0; overflow: hidden;">
+                    <table class="data-table" style="width:100%; border-collapse: collapse;">
+                        <thead>
+                            <tr style="background:#f1f5f9; text-align:right;">
+                                <th style="padding:15px;">نام تور</th>
+                                <th style="padding:15px;">تاریخ شروع</th>
+                                <th style="padding:15px;">وضعیت</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for tour in leader_tours %}
+                            <tr style="border-bottom: 1px solid #edf2f7;">
+                                <td style="padding:15px; font-weight: bold;">{{ tour.title }}</td>
+                                <td style="padding:15px;">{{ tour.start_date }}</td>
+                                <td style="padding:15px;">
+                                    {% if tour.is_active %}
+                                        <span style="background:#def7ec; color:#046c4e; padding:4px 12px; border-radius:20px; font-size: 0.8rem;">فعال</span>
+                                    {% else %}
+                                        <span style="background:#fff3cd; color:#856404; padding:4px 12px; border-radius:20px; font-size: 0.8rem;">در انتظار تایید</span>
+                                    {% endif %}
+                                </td>
+                            </tr>
+                            {% empty %}
+                            <tr><td colspan="3" style="padding:30px; text-align:center; color:#a0aec0;">هنوز توری ایجاد نکرده‌اید.</td></tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+            {% endif %}
+
+        </main>
+    </div>
+
+
+    <div style="padding: 0 15px 15px;">
+        {% if user.role == 'leader' %}
+            <div style="background: #f0fff4; color: #2f855a; padding: 10px; border-radius: 10px; text-align: center; font-size: 0.9rem; border: 1px solid #c6f6d5;">
+                <i class="fas fa-check-circle"></i> شما تور لیدر رسمی هستید
+            </div>
+        {% elif is_pending_leader %}
+            <div style="background: #fffaf0; color: #c05621; padding: 10px; border-radius: 10px; text-align: center; font-size: 0.9rem; border: 1px solid #feebc8;">
+                <i class="fas fa-clock"></i> درخواست لیدری شما در انتظار تایید است
+            </div>
+        {% else %}
+            <a href="{% url 'upgrade_to_leader' %}" class="btn-outline-soft" style="display: block; text-align: center; width: 100%; border-color: #1f27c5; color: #1f27c5;">
+                <i class="fas fa-briefcase"></i> ارتقا به تور لیدر
+            </a>
+        {% endif %}
+    </div>
+    <script>
+        function showTab(tabName) {
+            document.querySelectorAll('.tab-content-item').forEach(el => el.classList.remove('active-content'));
+            document.querySelectorAll('.dash-menu li').forEach(el => el.classList.remove('active-btn'));
+            
+            const target = document.getElementById('view-' + tabName);
+            if (target) target.classList.add('active-content');
+            
+            const btn = document.getElementById('btn-' + tabName);
+            if (btn) btn.classList.add('active-btn');
+        }
+
+        {% if messages %}
+            document.addEventListener('DOMContentLoaded', function() {
+                {% for message in messages %}
+                    showToast('پیام سیستم', '{{ message }}', '{% if message.tags == "success" %}success{% else %}info{% endif %}');
+                {% endfor %}
+            });
+        {% endif %}
+
+        const input = document.getElementById('avatar-input');
+        if(input) {
+            input.onchange = evt => {
+                const [file] = input.files
+                if (file) {
+                    document.getElementById('preview-img').src = URL.createObjectURL(file)
+                }
+            }
+        }
+    </script>
+{% endblock %}
