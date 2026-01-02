@@ -10,6 +10,8 @@ from .models import (
     Tour, Reservation, TourLeaderProfile, 
     Post, PostComment, Comment, LeaderReview, User)
 
+from .forms import TourForm
+
 #=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
 # Public sectors --> home tour weblog
 def index(request):
@@ -92,4 +94,51 @@ def post_detail(request, post_id):
 #=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
 
 #=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
-#
+# State of Reservations and Ticket management . 
+@login_required(login_url='/login/')
+def book_tour(request, tour_id):
+    if request.method == 'POST':
+        tour = get_object_or_404(Tour, pk=tour_id)
+        count = int(request.POST.get('passengers', 1))
+        Reservation.objects.create(
+            user=request.user, 
+            tour=tour, 
+            passengers_count=count, 
+            total_price=tour.price * count,
+            status='pending'
+        )
+        messages.success(request, "رزرو انجام شد و در انتظار تایید مدیریت است.")
+        return redirect('dashboard')
+    return redirect('tour_detail', tour_id=tour_id)
+
+@login_required(login_url='/login/')
+def view_ticket(request, reservation_id):
+    reservation = get_object_or_404(Reservation, pk=reservation_id, user=request.user, status='confirmed')
+    return render(request, 'ticket.html', {'reservation': reservation})
+#=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
+
+#=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
+# Statment Tourleader
+@login_required(login_url='/login/')
+def create_tour(request):
+    if request.user.role != 'leader': 
+        return redirect('index')
+        
+    if request.method == 'POST':
+        form = TourForm(request.POST, request.FILES)
+        if form.is_valid():
+            tour = form.save(commit=False)
+            tour.leader = request.user
+            tour.is_active = False 
+            messages.success(request, "تور ثبت شد و پس از تایید مدیریت نمایش داده می‌شود.")
+            return redirect('dashboard')
+    else: 
+        form = TourForm()
+    return render(request, 'create_tour.html', {'form': form})
+#=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
+
+#=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
+#Statement of login page
+
+#=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
+
