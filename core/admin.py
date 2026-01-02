@@ -12,7 +12,7 @@ class CustomUserAdmin(UserAdmin):
     list_filter = ('role', 'is_staff', 'is_superuser')
     list_editable = ('role',)
     fieldsets = UserAdmin.fieldsets + (
-        ('اطلاعات تکمیلی', {'fields': ('role', 'phone_number', 'avatar', 'national_id')}),
+        ('اطلاعات تکمیلی.', {'fields': ('role', 'phone_number', 'avatar', 'national_id')}),
     )
 #=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
 
