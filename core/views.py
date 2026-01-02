@@ -23,4 +23,33 @@ def index(request):
 
 
 #=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
-#
+# Get and show Tour list 
+def tour_list(request):
+    tours = Tour.objects.filter(is_active=True)
+    search_query = request.GET.get('q')
+    if search_query:
+        tours = tours.filter(Q(title__icontains=search_query) | Q(location__icontains=search_query))
+    return render(request, 'tours.html', {'tours': tours})
+#=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
+
+#=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
+# Show tour details for user and all .
+def tour_detail(request, tour_id):
+    tour = get_object_or_404(Tour, pk=tour_id)
+    reviews = tour.reviews.filter(is_approved=True)
+    can_review = False
+    
+    if request.user.is_authenticated:
+        can_review = Reservation.objects.filter(user=request.user, tour=tour, status='confirmed').exists() or \
+                     Reservation.objects.filter(user=request.user, tour=tour, status='paid').exists()
+    
+    if request.method == 'POST' and request.user.is_authenticated and can_review:
+        text = request.POST.get('comment_text')
+        rating = request.POST.get('rating', 5)
+        if text:
+            Comment.objects.create(user=request.user, tour=tour, text=text, rating=int(rating), is_approved=False)
+            messages.info(request, "نظر شما ثبت شد و پس از تایید نمایش داده می‌شود.")
+            return redirect('tour_detail', tour_id=tour.id)
+            
+    return render(request, 'tour-details.html', {'tour': tour, 'reviews': reviews, 'can_review': can_review})
+#=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
