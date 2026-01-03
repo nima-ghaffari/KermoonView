@@ -4,55 +4,64 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>{% block title %}کرمون ویو{% endblock %}</title>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <link href="https://fonts.googleapis.com/css2?family=Vazirmatn:wght@100;300;400;500;700;900&display=swap" rel="stylesheet">
+    <title>{% block title %}KermoonView{% endblock %}</title>
     
-    <link rel="stylesheet" href="{% static 'css/style.css' %}">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.4.2/css/all.min.css">
     
+    <link href="{% static 'css/style.css' %}" rel="stylesheet">
     {% block extra_css %}{% endblock %}
 </head>
 <body class="{% block body_class %}soft-theme-bg{% endblock %}">
 
-    <header>
-        <nav>
-            <div class="logo">
-                <a href="{% url 'index' %}" style="text-decoration: none; color: inherit; display: flex; align-items: center; gap: 5px;">
-                    <i class="fa-solid fa-location-dot"></i> KermoonView
-                </a>
-            </div>
-            
-            <div class="mobile-menu"><i class="fas fa-bars"></i></div>
-            
-            <ul class="nav-links">
-                <li><a href="{% url 'index' %}">خانه</a></li>
-                <li><a href="{% url 'tours' %}">تورها</a></li>
-                <li><a href="{% url 'guide_list' %}">اطلاعات گردشگری</a></li>
-                <li><a href="{% url 'index' %}#contact">تماس با ما</a></li>
-            </ul>
+    <div id="loader-wrapper">
+        <div class="loader-content">
+            <div class="loader-ring"></div>
+            <i class="fa-solid fa-mountain-sun loader-logo"></i>
+        </div>
+        <div class="loader-text">KERMOON VIEW</div>
+    </div>
 
-            <div class="auth-buttons">
-                {% if user.is_authenticated %}
-                    <a href="{% url 'dashboard' %}" class="cta-button" style="background: {% if user.role == 'leader' %}#2d3748{% else %}#48bb78{% endif %};">
-                        <i class="fas fa-user-circle"></i> <span>{{ user.username }}</span>
+    <header>
+        <div class="container">
+            <nav>
+                <div class="logo">
+                    <a href="{% url 'index' %}" style="text-decoration: none; color: inherit; display: flex; align-items: center; gap: 8px;">
+                        <i class="fa-solid fa-mountain-sun"></i> KermoonView
                     </a>
-                {% else %}
-                    <a href="{% url 'login' %}" class="cta-button">
-                        <i class="fas fa-user-circle"></i> <span>ورود / ثبت نام</span>
-                    </a>
-                {% endif %}
-            </div>
-        </nav>
+                </div>
+                
+                <ul class="nav-links">
+                    <li><a href="{% url 'index' %}"><i class="fa-solid fa-house"></i> خانه</a></li>
+                    <li><a href="{% url 'tours' %}"><i class="fa-solid fa-map-location-dot"></i> تورها</a></li>
+                    <li><a href="{% url 'guide_list' %}"><i class="fa-solid fa-users-viewfinder"></i> اطلاعات گردشگری</a></li>
+                    <li><a href="#contact"><i class="fa-solid fa-phone-flip"></i> تماس با ما</a></li>
+                </ul>
+
+                <div class="auth-buttons">
+                    {% if user.is_authenticated %}
+                        <a href="{% url 'dashboard' %}" class="cta-button" style="background: {% if user.role == 'leader' %}#2d3748{% else %}#c25e00{% endif %};">
+                            <i class="fa-solid fa-circle-user"></i> <span>{{ user.username }}</span>
+                        </a>
+                    {% else %}
+                        <a href="{% url 'login' %}" class="cta-button">
+                            <i class="fa-solid fa-arrow-right-to-bracket"></i> <span>ورود / ثبت نام</span>
+                        </a>
+                    {% endif %}
+                </div>
+
+                <div class="mobile-menu"><i class="fa-solid fa-bars"></i></div>
+            </nav>
+        </div>
         
         <div class="nav-mobile">
-            <a href="{% url 'index' %}">خانه</a>
-            <a href="{% url 'tours' %}">تورها</a>
-            <a href="{% url 'guide_list' %}">اطلاعات گردشگری</a>
+            <a href="{% url 'index' %}"><i class="fa-solid fa-house"></i> خانه</a>
+            <a href="{% url 'tours' %}"><i class="fa-solid fa-map-location-dot"></i> تورها</a>
+            <a href="{% url 'guide_list' %}"><i class="fa-solid fa-users-viewfinder"></i> اطلاعات گردشگری</a>
             {% if user.is_authenticated %}
-                <a href="{% url 'dashboard' %}">پنل کاربری</a>
-                <a href="{% url 'logout' %}" style="color:red;">خروج</a>
+                <a href="{% url 'dashboard' %}"><i class="fa-solid fa-user-gear"></i> پنل کاربری</a>
+                <a href="{% url 'logout' %}" style="color:red;"><i class="fa-solid fa-power-off"></i> خروج</a>
             {% else %}
-                <a href="{% url 'login' %}">ورود / ثبت نام</a>
+                <a href="{% url 'login' %}"><i class="fa-solid fa-arrow-right-to-bracket"></i> ورود / ثبت نام</a>
             {% endif %}
         </div>
     </header>
@@ -69,8 +78,8 @@
                 </div>
                 <div class="footer-section">
                     <h3>ارتباط با ما</h3>
-                    <p><i class="fas fa-phone"></i> ۰۹۱۲-۳۴۵-۶۷۸۹</p>
-                    <p><i class="fas fa-map-marker-alt"></i> کرمان، بلوار جمهوری</p>
+                    <p><i class="fa-solid fa-phone"></i> ۰۹۱۲-۳۴۵-۶۷۸۹</p>
+                    <p><i class="fa-solid fa-location-dot"></i> کرمان، بلوار جمهوری</p>
                 </div>
             </div>
             <div class="footer-bottom">
@@ -79,7 +88,58 @@
         </div>
     </footer>
 
+    <!-- Main Scripts -->
     <script src="{% static 'js/script.js' %}"></script>
+    
+    <script>
+        const scriptStartTime = Date.now();
+        const MIN_LOADING_TIME = 2000; 
+
+        window.addEventListener('load', function() {
+            const loader = document.getElementById('loader-wrapper');
+            const currentTime = Date.now();
+            const elapsedTime = currentTime - scriptStartTime;
+            const remainingTime = Math.max(0, MIN_LOADING_TIME - elapsedTime);
+
+            setTimeout(() => {
+                loader.classList.add('hidden');
+            }, remainingTime);
+        });
+
+        document.addEventListener('DOMContentLoaded', function() {
+            const links = document.querySelectorAll('a');
+            const loader = document.getElementById('loader-wrapper');
+
+            links.forEach(link => {
+                link.addEventListener('click', function(e) {
+                    const target = this.getAttribute('href');
+                    const targetTarget = this.getAttribute('target');
+                    
+                    if (target && !target.startsWith('#') && target !== '#' && targetTarget !== '_blank') {
+                        loader.classList.remove('hidden');
+                    }
+                });
+            });
+        });
+
+        const mobileBtn = document.querySelector('.mobile-menu');
+        const navMobile = document.querySelector('.nav-mobile');
+        
+        if(mobileBtn){
+            mobileBtn.addEventListener('click', () => {
+                navMobile.classList.toggle('active');
+                const icon = mobileBtn.querySelector('i');
+                if(navMobile.classList.contains('active')){
+                    icon.classList.remove('fa-bars');
+                    icon.classList.add('fa-xmark');
+                } else {
+                    icon.classList.remove('fa-xmark');
+                    icon.classList.add('fa-bars');
+                }
+            });
+        }
+    </script>
+    
     {% block extra_js %}{% endblock %}
 </body>
 </html>
