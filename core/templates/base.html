@@ -4,23 +4,23 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>{% block title %}KermoonView{% endblock %}</title>
+    <title>{% block title %}کرمون ویو{% endblock %}</title>
     
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.4.2/css/all.min.css">
-    
     <link href="{% static 'css/style.css' %}" rel="stylesheet">
     {% block extra_css %}{% endblock %}
 </head>
 <body class="{% block body_class %}soft-theme-bg{% endblock %}">
 
+    <!-- LOADER DIAGRAM -->
     <div id="loader-wrapper">
         <div class="loader-content">
-            <div class="loader-ring"></div>
             <i class="fa-solid fa-mountain-sun loader-logo"></i>
         </div>
         <div class="loader-text">KERMOON VIEW</div>
     </div>
 
+    <!-- HEADER DIAGRAM -->
     <header>
         <div class="container">
             <nav>
@@ -69,31 +69,45 @@
     {% block content %}
     {% endblock %}
 
+    <!-- FOOTER DIAGRAM -->
     <footer id="contact">
         <div class="container">
-            <div class="footer-content">
-                <div class="footer-section">
-                    <h3>درباره کرمون ویو</h3>
-                    <p>ما گروهی از جوانان عاشق کرمان هستیم که می‌خواهیم زیبایی‌های ناشناخته این دیار را به شما نشان دهیم.</p>
+            <!-- استفاده از کلاس footer-grid برای نظم دهی ستون‌ها -->
+            <div class="footer-grid">
+                
+                <div>
+                    <h3 class="footer-title">درباره کرمون ویو</h3>
+                    <p style="opacity: 0.8; line-height: 1.8;">ما گروهی از جوانان عاشق کرمان هستیم که می‌خواهیم زیبایی‌های ناشناخته این دیار را به شما نشان دهیم.</p>
                 </div>
-                <div class="footer-section">
-                    <h3>ارتباط با ما</h3>
+
+                <div>
+                    <h3 class="footer-title">دسترسی سریع</h3>
+                    <ul style="opacity: 0.8; line-height: 2;">
+                        <li><a href="{% url 'index' %}">صفحه اصلی</a></li>
+                        <li><a href="{% url 'tours' %}">تورهای فعال</a></li>
+                        <li><a href="{% url 'guide_list' %}">راهنمایان گردشگری</a></li>
+                    </ul>
+                </div>
+
+                <div>
+                    <h3 class="footer-title">ارتباط با ما</h3>
                     <p><i class="fa-solid fa-phone"></i> ۰۹۱۲-۳۴۵-۶۷۸۹</p>
                     <p><i class="fa-solid fa-location-dot"></i> کرمان، بلوار جمهوری</p>
+                    <p><i class="fa-solid fa-envelope"></i> info@kermoonview.ir</p>
                 </div>
+
             </div>
-            <div class="footer-bottom">
+            
+            <div style="text-align: center; border-top: 1px solid rgba(255,255,255,0.1); padding-top: 20px; margin-top: 20px; font-size: 0.9rem;">
                 <p>تمامی حقوق برای کرمون ویو محفوظ است © ۱۴۰۳</p>
             </div>
         </div>
     </footer>
 
-    <!-- Main Scripts -->
     <script src="{% static 'js/script.js' %}"></script>
-    
     <script>
         const scriptStartTime = Date.now();
-        const MIN_LOADING_TIME = 2000; 
+        const MIN_LOADING_TIME = 2500;
 
         window.addEventListener('load', function() {
             const loader = document.getElementById('loader-wrapper');
@@ -104,22 +118,6 @@
             setTimeout(() => {
                 loader.classList.add('hidden');
             }, remainingTime);
-        });
-
-        document.addEventListener('DOMContentLoaded', function() {
-            const links = document.querySelectorAll('a');
-            const loader = document.getElementById('loader-wrapper');
-
-            links.forEach(link => {
-                link.addEventListener('click', function(e) {
-                    const target = this.getAttribute('href');
-                    const targetTarget = this.getAttribute('target');
-                    
-                    if (target && !target.startsWith('#') && target !== '#' && targetTarget !== '_blank') {
-                        loader.classList.remove('hidden');
-                    }
-                });
-            });
         });
 
         const mobileBtn = document.querySelector('.mobile-menu');
@@ -139,7 +137,6 @@
             });
         }
     </script>
-    
     {% block extra_js %}{% endblock %}
 </body>
 </html>
