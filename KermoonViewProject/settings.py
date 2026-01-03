@@ -41,14 +41,10 @@ INSTALLED_APPS = [
     
     # Third-party apps
     'django_jalali',
-    
-    # Local apps
-    # نکته مهم: خط 'core' حذف شد چون 'core.apps.CoreConfig' وجود دارد.
-    # وجود همزمان هر دو باعث ارور تکراری بودن اپلیکیشن می‌شود.
+
     'core.apps.CoreConfig',
 ]
 
-# تنظیمات تاریخ شمسی
 JALALI_DATE_DEFAULTS = {
    'Strftime': {
         'date': '%y/%m/%d',
@@ -56,7 +52,7 @@ JALALI_DATE_DEFAULTS = {
     },
     'Static': {
         'js': [
-            # اگر از ادمین جنگو استفاده می‌کنید این‌ها لازم نیستند، خودش هندل می‌کند
+            'jalali_datepicker/js/jalali-datepicker.min.js',
         ],
         'css': {
             'all': [],
@@ -104,7 +100,6 @@ DATABASES = {
     }
 }
 
-# رفع وارنینگ‌های مربوط به Primary Key
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 
@@ -151,3 +146,6 @@ STATICFILES_DIRS = [
 
 MEDIA_URL = '/media/'
 MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
+
+TELEGRAM_BOT_TOKEN = '8142833290:AAEbm2m5BeVQogejv_qGTrrxT7yd-oZQSCE'
+TELEGRAM_ADMIN_ID = 6495789696 
